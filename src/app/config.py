@@ -1,0 +1,6 @@
+import os
+
+DEBUG = True
+SECRET_KEY = 'Thisisasecret!'
+SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://hello_flask:hello_flask@localhost/pokemon"
+PAGE_LIMIT = '13'
