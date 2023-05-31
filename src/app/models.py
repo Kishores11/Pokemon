@@ -11,8 +11,8 @@ migrate = Migrate(app, db, compare_type=True)
 
 @dataclass
 class Pokemon(db.Model):
-    rank: int = db.Column(db.Integer,nullable=False)
-    name: str = db.Column(db.Text,primary_key=True)
+    rank: int = db.Column(db.Integer, nullable=False)
+    name: str = db.Column(db.Text, primary_key=True)
     type_1: str = db.Column(db.Text, nullable=False)
     type_2: str = db.Column(db.Text, nullable=True)
     total: str = db.Column(db.Text, nullable=False)
