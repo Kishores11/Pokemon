@@ -191,7 +191,7 @@ def add_pokemon():
         # Fetch the inserted "id" values from the result
         inserted_ids = [row[0] for row in result.fetchall()]
 
-        return {"success": True, "message": "Pokemon added/updated successfully", "updated and inserted_ids": inserted_ids}, 200
+        return {"success": True, "message": "Pokemon added/updated successfully", "affected_ids": inserted_ids}, 200
     except (SQLAlchemyError, DataError, IntegrityError) as e:
         db.session.rollback()
         return {"success": False, "message": str(e)}, 500
@@ -202,33 +202,36 @@ def add_pokemon():
 @app.route("/", methods=["DELETE"])
 @app.route("/<pokemon_id>", methods=["DELETE"])
 def delete_pokemon(pokemon_id=None):
-    if pokemon_id:
-        pokemon_ids = [pokemon_id]
-    else:
-        data = request.get_json()
-        pokemon_ids = data.get("ids", [])
+    try:
+        if pokemon_id:
+            pokemon_ids = [pokemon_id]
+        else:
+            data = request.get_json()
+            pokemon_ids = data.get("ids", [])
 
-    if not pokemon_ids:
+        if not pokemon_ids:
+            return {
+                "success": False,
+                "message": "No Pokemon ids provided",
+            }, 400
+
+        deleted_pokemon_ids = []
+        for id in pokemon_ids:
+            pokemon = Pokemon.query.filter(Pokemon.id == id).first()
+            if pokemon:
+                deleted_pokemon_ids.append(pokemon.id)
+                db.session.delete(pokemon)
+
+        db.session.commit()
+
         return {
-            "success": False,
-            "message": "No Pokemon ids provided",
-        }, 400
-
-    deleted_pokemon_ids = []
-    for id in pokemon_ids:
-        pokemon = Pokemon.query.filter(Pokemon.id == id).first()
-        if pokemon:
-            deleted_pokemon_ids.append(pokemon.id)
-            db.session.delete(pokemon)
-
-    db.session.commit()
-
-    return {
-        "success": True,
-        "deleted_pokemon_ids": deleted_pokemon_ids,
-        "message": f"Deleted Pokemons with names: {deleted_pokemon_ids}",
-    }
-
+            "success": True,
+            "deleted_pokemon_ids": deleted_pokemon_ids,
+            "message": f"Deleted Pokemons with names: {deleted_pokemon_ids}",
+        }
+    except (SQLAlchemyError) as e:
+        db.session.rollback()
+        return {"success": False, "message": str(e)}, 500
 
 @app.route("/legendary-pokemons", methods=["GET"])
 def get_legendary_pokemons():

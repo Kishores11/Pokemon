@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields, pre_load
+from marshmallow import Schema, fields
 
 class PokemonSchema(Schema):
     id = fields.Integer()
