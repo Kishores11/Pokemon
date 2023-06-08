@@ -17,10 +17,11 @@ def create_object_in_db_at_startup():
     response = requests.get('https://coralvanda.github.io/pokemon_data.json')
     data = response.json()
 
-
+    id_counter = 1
     # Iterate over the Question objects and insert them into the database
     for pokemon_data in data:
         pokemon = Pokemon(
+                id=id_counter,
                 rank=pokemon_data["#"],
                 name=pokemon_data["Name"],
                 type_1=pokemon_data["Type 1"],
@@ -34,6 +35,7 @@ def create_object_in_db_at_startup():
                 legendary=pokemon_data["Legendary"]
             )
         db.session.add(pokemon)
+        id_counter += 1
 
     # Commit the changes to the database
     db.session.commit()
